@@ -1,0 +1,39 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "COBOL debugger",
+            "type": "gdb",
+            "request": "launch",
+            "cobcargs": [
+                "-free",
+                "-x"
+            ],
+            "docker": "olegkunitsyn/gnucobol:3.1-dev",
+            "coverage": true
+        },
+        {
+            "name": "COBOL debugger attach local",
+            "type": "gdb",
+            "request": "attach",
+            "cobcargs": [
+                "-free",
+                "-x"
+            ],
+            "pid": "${input:pid}"
+        },
+        {
+            "name": "COBOL debugger attach remote",
+            "type": "gdb",
+            "request": "attach",
+            "cobcargs": [
+                "-free",
+                "-x"
+            ],
+            "remoteDebugger": "${input:remoteDebugger}"
+        }
+    ]
+}
