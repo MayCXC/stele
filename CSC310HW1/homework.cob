@@ -12,10 +12,10 @@ data division.
        working-storage section.
            01 selection pic X.
            01 ones.
-                  02 thickness pic 99.
-                  02 repetition pic 999.
-                  02 creating pic 999.
-                  02 terminating pic 999.
+                  10 thickness pic 99.
+                  10 repetition pic 999.
+                  10 creating pic 999.
+                  10 terminating pic 999.
 
            01 processfactory.
                copy "myprocess.cpy"
