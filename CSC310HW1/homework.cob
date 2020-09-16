@@ -51,11 +51,11 @@ procedure division.
        set i, ii, iii, iiii, j, jj, jjj, jjjj to 1.
 
        request.
-           display "T: list processes and threads".
+           display "T: list processes and threads.".
            display "R: randomly create and terminate processes for ten minutes.".
-           display "E: create process.".
-           display "W: terminate process.".
-           display "Q: exit".
+           display "E: create a process.".
+           display "W: terminate a process.".
+           display "Q: exit.".
            display " ".
            accept selection.
            if upper-case(selection)="T" perform taskmanager
