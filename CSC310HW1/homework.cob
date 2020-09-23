@@ -1,4 +1,4 @@
-program-id. hello-world.
+program-id. homework.
 
 environment division.
 configuration section.
