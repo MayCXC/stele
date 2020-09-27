@@ -73,25 +73,34 @@ procedure division.
                if random() > i/100.0 perform createprocess end-if
                if random() < i/100.0 perform terminateprocess end-if
                if random() < .05 or random() > .95 perform taskmanager end-if
-               call "C$SLEEP" using 1 end-call
+*>               call "C$SLEEP" using 1 end-call
            end-perform.
            display "shutting down.".
            perform terminateprocess until i=1.
 
        createprocess.
            display "creating process...".
+
            initialize processfactory replacing
                    numeric data by 0
                    alphanumeric data by " ".
+
            if i<=100
+               perform varying ii from 1 by 1 until ii=i
+                   move processlist(ii) to processfactory
+                   if creating=processfactory-identity
+                       set creating to mod(creating,100)
+                       set creating up by 1
+                       set ii to 1
+                   end-if
+               end-perform
+
                set processfactory-identity to creating
-               compute thickness = random()*4.0
+               compute thickness = random()*4
                set thickness up by 1
                perform createthread
                    varying thickness from thickness by -1 until thickness=0
                move processfactory to processlist(i)
-               set creating to mod(creating,100)
-               set creating up by 1
                set i up by 1
            else display "processes list full!".
 
