@@ -73,7 +73,7 @@ procedure division.
                if random() > i/100.0 perform createprocess end-if
                if random() < i/100.0 perform terminateprocess end-if
                if random() < .05 or random() > .95 perform taskmanager end-if
-*>               call "C$SLEEP" using 1 end-call
+               call "C$SLEEP" using 1 end-call
            end-perform.
            display "shutting down.".
            perform terminateprocess until i=1.
