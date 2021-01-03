@@ -7,54 +7,54 @@ configuration section.
 
 data division.
        working-storage section.
-           01 selection pic X.
-           01 quantum pic V999 value .001.
+           01 selection pic X. *> keyboard input
+           01 quantum pic V999 value .001. *> tick delay
            01 ones.
-               10 thickness pic 9.
-               10 repetition pic 999.
-               10 creating pic 999.
-               10 terminating pic 999.
-               10 paging pic 999.
-               10 folio pic 999.
-               10 recto pic 99999.
-               10 verso pic 99999.
-               10 dogear pic 99999.
+               10 thickness pic 9.     *> max threads per process
+               10 repetition pic 999.  *> how long to spend creating processes
+               10 creating pic 999.    *> next PID to create
+               10 terminating pic 999. *> next PID to remove
+               10 paging pic 999.      *> next PID to page
+               10 folio pic 999.       *> page width
+               10 recto pic 99999.     *> page end
+               10 verso pic 99999.     *> page start
+               10 dogear pic 99999.    *> next verso
 
-           01 processfactory.
+           01 processfactory. *> process record with fields taken from copybook
                copy "myprocess.cpy" replacing
                    ==:n:== by 2
                    ==:tag:== by ==processfactory==
                    ==:stacksize:== by 100.
 
-           01 threadfactory.
+           01 threadfactory. *> thread record with fields taken from copybook
                copy "mythread.cpy" replacing
                    ==:n:== by 2
                    ==:tag:== by ==threadfactory==
                    ==:stacksize:== by 100.
 
            *> welcome to hell :^)
-           01 processlist occurs 100 times indexed by i, ii, iii, iiii.
+           01 processlist occurs 100 times indexed by i, ii, iii, iiii. *> process stack
                copy "myprocess.cpy" replacing
                    ==:n:== by 2
                    ==:tag:== by ==processlist==
                    ==:stacksize:== by 100.
 
-           01 threadlist occurs 400 times indexed by j, jj, jjj, jjjj.
+           01 threadlist occurs 400 times indexed by j, jj, jjj, jjjj. *> thread table
                copy "mythread.cpy" replacing
                    ==:n:== by 2
                    ==:tag:== by ==threadlist==
                    ==:stacksize:== by 100.
 
-           01 pagetable pic 99999 value 0 occurs 100 times indexed by k.
+           01 pagetable pic 99999 value 0 occurs 100 times indexed by k. *> long term memory
 
-           01 ram pic X value "0" occurs 10000 times indexed by l.
+           01 ram pic X value "0" occurs 10000 times indexed by l. *> short term memory
 
 procedure division.
-       initialize ones replacing numeric data by 1.
-       set i, ii, iii, iiii, j, jj, jjj, jjjj to 1.
-       set k, l to 1.
+       initialize ones replacing numeric data by 1. *> state fields
+       set i, ii, iii, iiii, j, jj, jjj, jjjj to 1. *> index fields
+       set k, l to 1. *> loop fields
 
-       request.
+       request. *> interactive menu
            display "Y: create and run processes until memory runs out."
            display "T: list processes and threads."
            display "R: randomly create and terminate processes for ten minutes."
@@ -74,7 +74,7 @@ procedure division.
 
        perform request.
 
-       randomprocess.
+       randomprocess. *> create a new process with random PID and thickness
            perform varying repetition from 600 by -1 until repetition=0
                display "round " repetition
                if random() > i/100.0 perform createprocess end-if
@@ -85,10 +85,10 @@ procedure division.
            display "shutting down."
            perform terminateprocess until i=1.
 
-       createprocess.
+       createprocess. *> create a new process
            display "creating process..."
            if i<=100
-               perform varying ii from 1 by 1 until ii=i
+               perform varying ii from 1 by 1 until ii=i *> look for unused PID
                    move processlist(ii) to processfactory
                    if creating=processfactory-identity
                        set creating to mod(creating,100)
@@ -97,26 +97,26 @@ procedure division.
                    end-if
                end-perform
 
-               initialize processfactory replacing
+               initialize processfactory replacing *> reset process fields
                    numeric data by 0
                    alphanumeric data by " "
                set processfactory-identity to creating
                compute thickness = random()*4
                set thickness up by 1
 
-               perform createthread varying thickness
+               perform createthread varying thickness *> add process threads
                    from thickness by -1 until thickness=0
                move processfactory to processlist(i)
                set i up by 1
            else display "processes list full!"
            end-if.
 
-       createthread.
+       createthread. *> create a new thread
            display "creating thread..."
            initialize threadfactory replacing
                    numeric data by 0
                    alphanumeric data by " "
-           if j<=400
+           if j<=400 *> threads have the same parent
                set threadfactory-identity to thickness
                set threadfactory-parent to creating
                set processfactory-children up by 1
@@ -125,12 +125,12 @@ procedure division.
            else display "threads list full!"
            end-if.
 
-       terminateprocess.
-           compute terminating = i - 1
+       terminateprocess. *> remove a process
+           compute terminating = i - 1 *> range of processes
            compute terminating = terminating * random()
            compute terminating = terminating + 1
-           move processlist(terminating) to processfactory
-           move processfactory-identity to terminating
+           move processlist(terminating) to processfactory *> read process fields
+           move processfactory-identity to terminating *> reuse index
 
            display "terminating process #" terminating "..."
            if i>1 *> final boss
@@ -153,7 +153,7 @@ procedure division.
            else display "out of processes!"
            end-if.
                   
-       taskmanager.
+       taskmanager. *> display process stack
            display " "
            compute ii = i - 1
            display ii " processes are active"
@@ -171,7 +171,7 @@ procedure division.
                display "thread #" threadfactory-identity ": " threadfactory-parent " is parent"
            end-perform.
 
-       roundrobin.
+       roundrobin. *> run processes with round robin scheduler
            perform createprocess until i=100
            perform varying paging from 1 by 1 until recto>10000
                perform pageprocess
@@ -184,7 +184,7 @@ procedure division.
                compute paging = mod(paging,i)
            end-perform.
 
-       pageprocess.
+       pageprocess. *> put process memory in ram
            display "paging process #" paging "..."
            set k to paging
            if pagetable(k)>0
@@ -194,7 +194,7 @@ procedure division.
                perform firstfit
            end-if.
 
-       firstfit.
+       firstfit. *> fit process memory in ram
            set ii to paging
            move processlist(ii) to processfactory
            set folio to 1
@@ -203,7 +203,7 @@ procedure division.
            compute verso = 1
            compute recto = verso + folio
 
-           perform varying k from 1 by 1 until k=i
+           perform varying k from 1 by 1 until k=i *> virtual memory without fragmentation
                if pagetable(k)>0
                    set ii to k
                    move processlist(ii) to processfactory
@@ -221,7 +221,7 @@ procedure division.
                end-if
            end-perform
 
-           if recto <= 10000
+           if recto <= 10000 *> put thread memory in ram
                display "process allocated memory [" verso "," recto ")"
                set k to paging
                set pagetable(k) to verso
